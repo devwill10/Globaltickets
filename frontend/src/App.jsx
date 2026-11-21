@@ -32,6 +32,8 @@ import EventDetails from './pages/EventDetails'
 import OrderSuccess from './pages/OrderSuccess'
 import TicketSignIn from './pages/TicketSignIn'
 import ConfirmSignIn from './pages/ConfirmSignIn'
+import ScanApp from './pages/scan/ScanApp'
+import { IS_SCAN_HOST } from './services/scan'
 
 export default function App() {
   useEffect(() => {
@@ -46,6 +48,9 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname + window.location.search)
     }
   }, [])
+
+  // scan.yourdomain.com serves only the staff check-in pages, at the root
+  if (IS_SCAN_HOST) return <Routes><Route path="/*" element={<ScanApp />} /></Routes>
 
   return (
     <Routes>
@@ -79,6 +84,9 @@ export default function App() {
         <Route path="account" element={<Account />} />
         <Route path="tickets" element={<MyTickets />} />
       </Route>
+
+      {/* Staff check-in (also served at the root of scan.yourdomain.com) */}
+      <Route path="/scan/*" element={<ScanApp />} />
 
       {/* Email sign-in for ticket buyers (full-screen, no navbar/footer) */}
       <Route path="/tickets/sign-in" element={<TicketSignIn />} />

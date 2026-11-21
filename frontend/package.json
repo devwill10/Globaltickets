@@ -17,6 +17,7 @@
     "@tiptap/react": "^2.27.3",
     "@tiptap/starter-kit": "^2.27.3",
     "dompurify": "^3.4.17",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.69.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.3.1",
