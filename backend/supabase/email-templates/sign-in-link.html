@@ -1,0 +1,15 @@
+<!-- Paste into Supabase: Authentication > Emails > "Magic link" template.
+     Subject: Your TicketsGlobal sign-in link
+     (Optional but recommended: paste the same HTML into "Confirm signup" too.)
+     The link opens YOUR site, which then verifies it. That makes the link work on any device or
+     browser, and stops email scanners from using up the one-time link.
+     Requires Authentication > URL Configuration > Site URL to be your site address. -->
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#161a2b">
+  <h2 style="margin:0 0 12px;font-size:22px">Sign in to <span style="color:#fa6540">ticketsglobal</span></h2>
+  <p style="margin:0 0 24px;font-size:15px;line-height:1.5">Tap the button below to sign in and see your tickets. This link works once and expires soon.</p>
+  <p style="margin:0 0 24px">
+    <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}"
+       style="display:inline-block;background:#fa6540;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-size:15px">Sign in</a>
+  </p>
+  <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.5">If you didn't ask for this email, you can safely ignore it.</p>
+</div>
