@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 
-// Calls the payout-account Edge Function (it holds the Bachs key)
+// Calls the payout-account Edge Function (it holds the Paystack key)
 async function call(body) {
   const { data, error } = await supabase.functions.invoke('payout-account', { body })
   if (error) {
@@ -14,7 +14,7 @@ async function call(body) {
 }
 
 export async function getPayoutAccount() {
-  const { data, error } = await supabase.from('payout_accounts').select('bank_name,account_last4,account_name,currency,verified_at,provider_status').maybeSingle()
+  const { data, error } = await supabase.from('payout_accounts').select('bank_name,account_last4,account_name,currency,verified_at').maybeSingle()
   if (error) throw new Error('Could not load your payout account.')
   return data
 }
