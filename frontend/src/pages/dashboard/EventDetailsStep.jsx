@@ -9,6 +9,7 @@ import LineupEditor from '../../components/dashboard/LineupEditor'
 import { COUNTRIES } from '../../data/events'
 import { FORMATS } from '../../data/eventOptions'
 import { TIMEZONES, toIso } from '../../utils/eventTime'
+import { formatTime, finishTime } from '../../utils/timeInput'
 import { createEvent, getMyEvent, updateEvent, uploadMedia, toRow, fromRow } from '../../services/myEvents'
 import { useAuthStore } from '../../store/authStore'
 import { useToast } from '../../components/Toast'
@@ -34,10 +35,10 @@ function validate(v, isNew) {
   const s = toIso(v.startDate, v.startTime, v.startAmPm, v.timezone)
   const en = toIso(v.endDate, v.endTime, v.endAmPm, v.timezone)
   if (!v.startDate) e.startDate = 'Choose a start date.'
-  else if (!s) e.startTime = 'Use a time like 05:00.'
+  else if (!s) e.startTime = 'Enter a time like 4:00 and choose AM or PM.'
   else if (isNew && new Date(s) < new Date()) e.startDate = 'The start must be in the future.'
   if (!v.endDate) e.endDate = 'Choose an end date.'
-  else if (!en) e.endTime = 'Use a time like 10:00.'
+  else if (!en) e.endTime = 'Enter a time like 10:00 and choose AM or PM.'
   else if (s && new Date(en) <= new Date(s)) e.endDate = 'The end must be after the start.'
   const { website, instagram, x, facebook } = v.social
   if (website && !isUrl(website)) e.website = 'Enter a full link starting with https://'
@@ -172,7 +173,8 @@ export default function EventDetailsStep() {
                 <div className="grid grid-cols-[1fr_1fr] gap-3 sm:grid-cols-[2fr_1.2fr_90px]">
                   <input {...bad(`${p}Date`)} type="date" value={values[`${p}Date`]} min={p === 'end' && values.startDate ? values.startDate : undefined}
                     onChange={on(`${p}Date`)} className={inputCls(errors[`${p}Date`])} />
-                  <input {...bad(`${p}Time`)} value={values[`${p}Time`]} onChange={on(`${p}Time`)} placeholder={`${name} time (hh:mm)`} maxLength={5} inputMode="numeric" className={inputCls(errors[`${p}Time`])} />
+                  <input {...bad(`${p}Time`)} value={values[`${p}Time`]} onChange={(e) => set(`${p}Time`)(formatTime(e.target.value, values[`${p}Time`]))}
+                    onBlur={() => set(`${p}Time`)(finishTime(values[`${p}Time`]))} placeholder={`${name} time, e.g. 4:00`} maxLength={5} inputMode="numeric" autoComplete="off" className={inputCls(errors[`${p}Time`])} />
                   <select aria-label={`${name} AM or PM`} value={values[`${p}AmPm`]} onChange={on(`${p}AmPm`)} className={inputCls(false)}><option>AM</option><option>PM</option></select>
                 </div>
                 <ErrorText id={`e-${p}Date`}>{errors[`${p}Date`]}</ErrorText>
