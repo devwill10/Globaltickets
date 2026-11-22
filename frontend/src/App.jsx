@@ -33,6 +33,10 @@ import OrderSuccess from './pages/OrderSuccess'
 import TicketSignIn from './pages/TicketSignIn'
 import ConfirmSignIn from './pages/ConfirmSignIn'
 import ScanApp from './pages/scan/ScanApp'
+import HelpLayout from './pages/help/HelpLayout'
+import HelpHome from './pages/help/HelpHome'
+import HelpCategory from './pages/help/HelpCategory'
+import HelpArticle from './pages/help/HelpArticle'
 import { IS_SCAN_HOST } from './services/scan'
 
 export default function App() {
@@ -83,6 +87,13 @@ export default function App() {
         <Route path="box-office/:id" element={<BoxOfficeEditor />} />
         <Route path="account" element={<Account />} />
         <Route path="tickets" element={<MyTickets />} />
+      </Route>
+
+      {/* Help center (its own header and footer, outside the main layout) */}
+      <Route path="/help" element={<HelpLayout />}>
+        <Route index element={<HelpHome />} />
+        <Route path="category/:cat" element={<HelpCategory />} />
+        <Route path="articles/:slug" element={<HelpArticle />} />
       </Route>
 
       {/* Staff check-in (also served at the root of scan.yourdomain.com) */}
