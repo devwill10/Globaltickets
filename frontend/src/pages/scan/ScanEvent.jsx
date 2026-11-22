@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Search, ArrowUp, ArrowDown, ChevronDown } from 'lucide-react'
 import { Guarded, Header, PrimaryButton, Pager } from './ScanShell'
-import { listStaffEvents, listAttendees, dateTime, scanPath, SigninError } from '../../services/scan'
+import { listStaffEvents, listAttendees, dateTime, scanPath, getStaff, SigninError } from '../../services/scan'
 
 // "2 * Regular, 1 * VIP"
 function summary(tickets) {
@@ -101,6 +101,9 @@ export default function ScanEvent() {
       </div>
 
       <PrimaryButton className="mt-6" onClick={() => nav(scanPath(`/events/${id}/qr`))}>Scan QR code</PrimaryButton>
+      {event && event.status === 'published' && getStaff()?.can_sell && (
+        <button type="button" onClick={() => nav(scanPath(`/events/${id}/sell`))} className="mt-3 w-full rounded-xl border border-brand py-4 text-base font-semibold text-brand hover:bg-brand/5">Sell tickets</button>
+      )}
       <div className="mt-4"><Pager page={page} pages={data?.pages ?? 1} onPage={setPage} /></div>
     </Guarded>
   )

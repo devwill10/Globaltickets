@@ -1,3 +1,4 @@
+import { formatSales, salesState } from '../../utils/salesWindow'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, ArrowLeft, Info } from 'lucide-react'
@@ -154,7 +155,7 @@ export default function CheckoutFlow({ event, tiers, availability, color, onClos
             {step === 'tickets' ? (
               <ul className="mt-6 divide-y divide-ink/10 border-b border-ink/10">
                 {tiers.map((t) => {
-                  const max = maxFor(t), soldOut = availability[t.id] === 0
+                  const max = maxFor(t), soldOut = availability[t.id] === 0, window = salesState(t)
                   return (
                     <li key={t.id} className="flex items-start justify-between gap-4 py-5">
                       <div className="min-w-0">
@@ -163,7 +164,9 @@ export default function CheckoutFlow({ event, tiers, availability, color, onClos
                         {t.description && <p className="mt-2 text-xs text-ink/70">{t.description}</p>}
                         {t.perks?.length > 0 && <ul className="mt-2 list-disc pl-4 text-xs text-ink/70">{t.perks.map((p) => <li key={p}>{p}</li>)}</ul>}
                       </div>
-                      {soldOut ? <span className="text-sm text-ink/60">Sold out</span> : (
+                      {window === 'upcoming' ? <span className="max-w-[9rem] text-right text-xs text-ink/60">Sales start {formatSales(t.sales_start_at, event.timezone)}</span>
+                        : window === 'ended' ? <span className="text-sm text-ink/60">Sales ended</span>
+                        : soldOut ? <span className="text-sm text-ink/60">Sold out</span> : (
                         <select aria-label={`Quantity for ${t.name}`} value={qty[t.id] ?? 0} onChange={(e) => setQty((q) => ({ ...q, [t.id]: Number(e.target.value) }))}
                           className="rounded-md border border-ink/20 bg-white px-3 py-2 text-xs">
                           {Array.from({ length: max + 1 }, (_, n) => <option key={n} value={n}>{n}</option>)}

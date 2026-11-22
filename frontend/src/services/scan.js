@@ -26,11 +26,12 @@ const pass = () => getStaff()?.passcode ?? ''
 export async function staffSignIn(passcode) {
   const data = await call('staff_sign_in', { p_passcode: passcode.trim() })
   if (!data.ok) throw new Error("That code isn't right. Check it and try again.")
-  saveStaff({ passcode: passcode.trim(), name: data.name })
+  saveStaff({ passcode: passcode.trim(), name: data.name, can_sell: Boolean(data.can_sell) })
   return data
 }
 export async function listStaffEvents() {
   const d = await call('staff_list_events', { p_passcode: pass() })
+  saveStaff({ ...getStaff(), can_sell: Boolean(d.can_sell) }) // keep permissions fresh if the organiser changed them
   return d.events
 }
 export async function listAttendees(eventId, { search = '', page = 1, desc = false } = {}) {
@@ -41,6 +42,22 @@ export async function listAttendees(eventId, { search = '', page = 1, desc = fal
 // checkIn=false only looks the ticket up
 export async function staffTicket(code, eventId, checkIn = false) {
   return call('staff_ticket', { p_passcode: pass(), p_code: code, p_event_id: eventId, p_check_in: checkIn })
+}
+
+// ---- door sales ----
+export async function getSellOptions(eventId) {
+  const d = await call('staff_sell_options', { p_passcode: pass(), p_event_id: eventId })
+  if (!d.ok) throw new Error(d.error)
+  return d
+}
+// items: [{ tier_id, qty }]. Emails the tickets when the guest gave an address.
+export async function sellTickets({ eventId, items, first, last, email, phone, method, checkIn }) {
+  const d = await call('staff_sell', {
+    p_passcode: pass(), p_event_id: eventId, p_items: items, p_first: first, p_last: last,
+    p_email: email, p_phone: phone, p_method: method, p_check_in: checkIn,
+  })
+  if (d.emailed) supabase.functions.invoke('send-tickets', { body: { order_id: d.order_id } }).catch(() => {})
+  return d
 }
 
 // ---- display helpers ----

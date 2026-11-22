@@ -1,3 +1,4 @@
+import { formatSales } from '../../utils/salesWindow'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Plus, Ticket, Pencil, Trash2, Lock } from 'lucide-react'
@@ -65,6 +66,11 @@ export default function EventTicketsStep() {
                   <p className="mt-1 text-sm text-ink/70">
                     {formatPrice(t.price_minor / 100, event.currency)} · {t.quantity == null ? 'Unlimited' : `${t.quantity} available`} · {t.ticket_kind === 'group' ? `admits ${t.group_size} people` : `max ${t.order_limit} per person`}
                   </p>
+                  {(t.sales_start_at || t.sales_end_at) && (
+                    <p className="mt-1 text-xs text-ink/60">
+                      {[t.sales_start_at && `Sales start ${formatSales(t.sales_start_at, event.timezone)}`, t.sales_end_at && `Sales end ${formatSales(t.sales_end_at, event.timezone)}`].filter(Boolean).join(' · ')}
+                    </p>
+                  )}
                 </div>
                 <button type="button" aria-label={`Edit ${t.name}`} onClick={() => setModal({ tier: t })} className="text-brand"><Pencil size={18} /></button>
                 <button type="button" aria-label={`Delete ${t.name}`} onClick={() => remove(t)} className="text-brand"><Trash2 size={18} /></button>
@@ -82,7 +88,7 @@ export default function EventTicketsStep() {
       </div>
 
       {modal && event && (
-        <TicketModal eventId={id} currency={event.currency} tier={modal.tier} sortOrder={tiers.length}
+        <TicketModal eventId={id} currency={event.currency} timezone={event.timezone} tier={modal.tier} sortOrder={tiers.length}
           onClose={() => setModal(null)} onSaved={() => { setModal(null); toast('Ticket saved'); load() }} />
       )}
     </WizardShell>

@@ -1,7 +1,8 @@
 import { supabase } from '../lib/supabase'
 import { dbError } from './myEvents'
+import { localToIso } from '../utils/salesWindow'
 
-const COLS = 'id,event_id,name,description,price_minor,quantity,sort_order,order_limit,is_invite_only,requires_approval,perks,ticket_kind,group_size,created_at'
+const COLS = 'id,event_id,name,description,price_minor,quantity,sort_order,order_limit,is_invite_only,requires_approval,perks,ticket_kind,group_size,sales_start_at,sales_end_at,created_at'
 
 export async function listTiers(eventId) {
   const { data, error } = await supabase.from('ticket_tiers').select(COLS)
@@ -11,7 +12,7 @@ export async function listTiers(eventId) {
 }
 
 // v = form values. Free tickets have price 0. The password is hashed on the server.
-export async function saveTier(eventId, v, tierId, sortOrder = 0) {
+export async function saveTier(eventId, v, tierId, sortOrder = 0, timezone = 'Africa/Lagos') {
   const row = {
     name: v.name.trim(),
     description: v.description.trim(),
@@ -24,6 +25,9 @@ export async function saveTier(eventId, v, tierId, sortOrder = 0) {
     is_invite_only: v.inviteOnly,
     requires_approval: v.inviteOnly && v.approval,
     perks: v.perks.map((p) => p.trim()).filter(Boolean),
+    // Entered in the event's time zone; empty = no limit
+    sales_start_at: localToIso(v.salesStart, timezone),
+    sales_end_at: localToIso(v.salesEnd, timezone),
   }
   let id = tierId
   if (tierId) {

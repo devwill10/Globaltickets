@@ -3,12 +3,15 @@ import { Info, Plus, Trash2, Ticket } from 'lucide-react'
 import Modal from '../Modal'
 import { Label, ErrorText, SelectBox, inputCls } from './FormBits'
 import { saveTier } from '../../services/tickets'
+import { isoToLocal, zoneAbbr } from '../../utils/salesWindow'
 
 const SYMBOL = { NGN: '₦', GHS: 'GH₵', KES: 'KSh ', ZAR: 'R' }
 const LIMITS = Array.from({ length: 10 }, (_, i) => String(i + 1))
 const GROUP_SIZES = Array.from({ length: 19 }, (_, i) => String(i + 2))
 
-const initial = (t) => ({
+const initial = (t, tz) => ({
+  salesStart: isoToLocal(t?.sales_start_at, tz),
+  salesEnd: isoToLocal(t?.sales_end_at, tz),
   kind: t?.ticket_kind ?? 'single',
   groupSize: String(t?.group_size ?? 2),
   isPaid: t ? t.price_minor > 0 : false,
@@ -25,9 +28,9 @@ const initial = (t) => ({
 })
 
 // tier = existing ticket to edit (skips the type picker).
-export default function TicketModal({ eventId, currency, tier, sortOrder, onClose, onSaved }) {
+export default function TicketModal({ eventId, currency, timezone = 'Africa/Lagos', tier, sortOrder, onClose, onSaved }) {
   const [stage, setStage] = useState(tier ? 'form' : 'type')
-  const [v, setV] = useState(() => initial(tier))
+  const [v, setV] = useState(() => initial(tier, timezone))
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -46,6 +49,7 @@ export default function TicketModal({ eventId, currency, tier, sortOrder, onClos
     if (!v.name.trim()) e.name = 'Enter a ticket name.'
     if (v.qtyMode === 'limited' && !(Number.isInteger(Number(v.quantity)) && Number(v.quantity) >= 1)) e.quantity = 'Enter how many tickets are available.'
     if (!v.description.trim()) e.description = 'Add a ticket description.'
+    if (v.salesStart && v.salesEnd && v.salesEnd <= v.salesStart) e.salesEnd = 'Sales must end after they start.'
     if (v.isPaid && !(Number(v.price) >= 1)) e.price = 'Enter a price of 1 or more.'
     if (v.inviteOnly) {
       if (!editing || v.password) {
@@ -63,7 +67,7 @@ export default function TicketModal({ eventId, currency, tier, sortOrder, onClos
     const key = Object.keys(errs)[0]
     if (key) { document.getElementById(`t-${key}`)?.focus(); return }
     setSaving(true)
-    try { await saveTier(eventId, v, tier?.id, sortOrder); onSaved() }
+    try { await saveTier(eventId, v, tier?.id, sortOrder, timezone); onSaved() }
     catch (e) { setServerError(e.message) } finally { setSaving(false) }
   }
 
@@ -144,6 +148,22 @@ export default function TicketModal({ eventId, currency, tier, sortOrder, onClos
             {v.qtyMode === 'limited' && <input {...bad('quantity')} value={v.quantity} onChange={on('quantity')} inputMode="numeric" aria-label="Number of tickets" className={inputCls(errors.quantity)} />}
           </div>
           <ErrorText id="te-quantity">{errors.quantity}</ErrorText>
+        </div>
+
+        <div>
+          <p className="text-sm font-bold">Sales window <span className="font-normal text-ink/60">(optional)</span></p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="t-salesStart">Sales start</Label>
+              <input id="t-salesStart" type="datetime-local" value={v.salesStart} onChange={on('salesStart')} className={inputCls(false)} />
+            </div>
+            <div>
+              <Label htmlFor="t-salesEnd">Sales end</Label>
+              <input {...bad('salesEnd')} type="datetime-local" value={v.salesEnd} onChange={on('salesEnd')} className={inputCls(errors.salesEnd)} />
+            </div>
+          </div>
+          <ErrorText id="te-salesEnd">{errors.salesEnd}</ErrorText>
+          <p className="mt-2 text-xs text-ink/60">Times are in the event's time zone ({zoneAbbr(timezone)}). Leave them empty to sell from now until the event ends. Staff can still sell at the door outside this window.</p>
         </div>
 
         {group ? (

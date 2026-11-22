@@ -4,6 +4,7 @@ import ScanEvents from './ScanEvents'
 import ScanEvent from './ScanEvent'
 import ScanQr from './ScanQr'
 import ScanResult from './ScanResult'
+import ScanSell from './ScanSell'
 import { scanPath } from '../../services/scan'
 
 // Everything on the scan page (scan.yourdomain.com, or /scan while developing)
@@ -14,6 +15,7 @@ export default function ScanApp() {
       <Route path="events" element={<ScanEvents />} />
       <Route path="events/:id" element={<ScanEvent />} />
       <Route path="events/:id/qr" element={<ScanQr />} />
+      <Route path="events/:id/sell" element={<ScanSell />} />
       <Route path="events/:id/ticket/:code" element={<ScanResult />} />
       <Route path="*" element={<Navigate to={scanPath('/')} replace />} />
     </Routes>

@@ -106,13 +106,18 @@ function Switch({ checked, onChange, label }) {
 function StaffModal({ staff, onClose, onSaved }) {
   const [name, setName] = useState(staff?.name ?? '')
   const [check, setCheck] = useState(staff?.can_check_in ?? true)
+  const [sell, setSell] = useState(staff?.can_sell ?? false)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   async function submit(e) {
     e.preventDefault()
     if (name.trim().length < 2) return setError('Enter a name of at least 2 characters.')
     setSaving(true); setError('')
-    try { if (staff) await updateStaff(staff.id, { name: name.trim(), can_check_in: check }); else await addStaff(name.trim(), check); onSaved(!staff) }
+    try {
+      if (staff) await updateStaff(staff.id, { name: name.trim(), can_check_in: check, can_sell: sell })
+      else { const row = await addStaff(name.trim(), check); if (sell) await updateStaff(row.id, { can_sell: true }) }
+      onSaved(!staff)
+    }
     catch (x) { setError(/2 to 60|up to 50/.test(x.message) ? x.message : 'Could not save. Please try again.') } finally { setSaving(false) }
   }
   return (
@@ -123,7 +128,8 @@ function StaffModal({ staff, onClose, onSaved }) {
         {error && <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
         <div><Label htmlFor="st-name" required>Name</Label><input id="st-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} className={inputCls(false)} /></div>
         <div><p className="text-sm font-bold">Permissions</p>
-          <div className="mt-4 flex items-center justify-between text-sm"><span>Check in tickets</span><Switch checked={check} onChange={setCheck} label="Check in tickets" /></div></div>
+          <div className="mt-4 flex items-center justify-between text-sm"><span>Check in tickets</span><Switch checked={check} onChange={setCheck} label="Check in tickets" /></div>
+          <div className="mt-4 flex items-center justify-between gap-4 text-sm"><span>Sell tickets at the door<span className="block text-xs text-ink/60">They collect cash or transfers themselves and record the sale.</span></span><Switch checked={sell} onChange={setSell} label="Sell tickets at the door" /></div></div>
       </form>
     </Modal>
   )

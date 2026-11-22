@@ -15,7 +15,7 @@ export async function getPublicEvent(key) {
 
 export async function listPublicTiers(eventId) {
   const { data, error } = await supabase.from('ticket_tiers')
-    .select('id,name,description,price_minor,quantity,order_limit,perks,ticket_kind,group_size,is_invite_only,sort_order')
+    .select('id,name,description,price_minor,quantity,order_limit,perks,ticket_kind,group_size,is_invite_only,sales_start_at,sales_end_at,sort_order')
     .eq('event_id', eventId).order('sort_order')
   if (error) throw error
   return data
@@ -46,5 +46,7 @@ export async function claimFreeTickets({ eventId, items, first, last, email, pho
     // Messages we raise ourselves (code P0001) are written for users; anything else stays generic.
     throw new Error(error.code === 'P0001' ? error.message : 'Something went wrong. Please try again.')
   }
+  // The server emails the tickets (once per order). The purchase is already done, so a failure here never blocks the buyer.
+  supabase.functions.invoke('send-tickets', { body: { order_id: data.order_id } }).catch(() => {})
   return data
 }
