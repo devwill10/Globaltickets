@@ -29,7 +29,7 @@ function Modal({ children, onClose, label }) {
   useEffect(() => { ref.current?.focus() }, [])
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={label} className="max-h-[90vh] w-full max-w-lg overflow-auto rounded-2xl bg-white p-8 outline-none">{children}</div>
+      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={label} className="max-h-[calc(100vh-2rem)] supports-[height:100dvh]:max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-auto rounded-2xl bg-white p-8 outline-none">{children}</div>
     </div>
   )
 }
