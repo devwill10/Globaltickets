@@ -34,6 +34,11 @@ import TicketSignIn from './pages/TicketSignIn'
 import ConfirmSignIn from './pages/ConfirmSignIn'
 import ScanApp from './pages/scan/ScanApp'
 import HelpLayout from './pages/help/HelpLayout'
+import EventPage from './pages/dashboard/event/EventPage'
+import EventFinance from './pages/dashboard/event/EventFinance'
+import EventAttendees from './pages/dashboard/event/EventAttendees'
+import EventReports from './pages/dashboard/event/EventReports'
+import EventSettings from './pages/dashboard/event/EventSettings'
 import HelpHome from './pages/help/HelpHome'
 import HelpCategory from './pages/help/HelpCategory'
 import HelpArticle from './pages/help/HelpArticle'
@@ -79,6 +84,13 @@ export default function App() {
         <Route path="events/:id/details" element={<EventDetailsStep />} />
         <Route path="events/:id/appearance" element={<EventAppearanceStep />} />
         <Route path="events/:id/tickets" element={<EventTicketsStep />} />
+        <Route path="events/:id" element={<EventPage />}>
+          <Route index element={<Navigate to="finance" replace />} />
+          <Route path="finance" element={<EventFinance />} />
+          <Route path="attendees" element={<EventAttendees />} />
+          <Route path="reports" element={<EventReports />} />
+          <Route path="settings" element={<EventSettings />} />
+        </Route>
         <Route path="discounts" element={<Discounts />} />
         <Route path="marketing" element={<Marketing />} />
         <Route path="marketing/new" element={<EmailComposer />} />

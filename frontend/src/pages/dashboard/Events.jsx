@@ -95,7 +95,7 @@ export default function DashboardEvents() {
                   <li key={e.id} className="flex flex-wrap items-center gap-4 rounded-xl border border-ink/10 bg-white p-4">
                     {e.image_url ? <img src={e.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" /> : <div className="h-16 w-16 rounded-lg bg-gradient-to-br from-orange-200 to-orange-400" />}
                     <div className="min-w-0 flex-1">
-                      <Link to={`/dashboard/events/${e.id}/details`} className="block truncate font-bold hover:text-brand">{e.title}</Link>
+                      <Link to={`/dashboard/events/${e.id}`} className="block truncate font-bold hover:text-brand">{e.title}</Link>
                       <p className="mt-1 text-sm text-ink/70">{formatEventDate(e.starts_at)}</p>
                       <p className="mt-0.5 flex items-center gap-1 truncate text-sm text-ink/70"><MapPin size={14} />{e.venue || 'No location'}</p>
                     </div>
@@ -104,6 +104,7 @@ export default function DashboardEvents() {
                       <span className="text-xs text-ink/60">{e.tickets} ticket type{e.tickets === 1 ? '' : 's'}</span>
                     </div>
                     <div className="flex gap-2 text-sm">
+                      <Link to={`/dashboard/events/${e.id}`} className="rounded-lg border border-ink/20 px-3 py-2 hover:border-brand hover:text-brand">Manage</Link>
                       <Link to={`/dashboard/events/${e.id}/details`} className="rounded-lg border border-ink/20 px-3 py-2 hover:border-brand hover:text-brand">Edit</Link>
                       {(e.status === 'draft' || e.status === 'unpublished') && (
                         <button disabled={busy === e.id} onClick={() => run(e.id, () => setEventStatus(e.id, 'published'), 'Event published')}
